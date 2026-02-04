@@ -7,7 +7,7 @@ HERE = os.path.dirname(__file__)
 sys.path.insert(0, HERE)
 
 
-from data_loader import read_data
+from data_loader import read_data  # noqa: E402
 
 
 def drain_and_print(gen, limit: int = 5):

@@ -132,9 +132,6 @@ def _read_xml_stream(
         raise ValueError(f"Error parsing XML: {e}")
 
     for event, elem in context:
-        if item_tag is None:
-            # obtener root tag y procesar hijos directos: asumimos que los items son hijos del root
-            parent = elem.getparent() if hasattr(elem, "getparent") else None
         # decidimos si este elemento debe ser yield
         tag = elem.tag
         if item_tag is None:

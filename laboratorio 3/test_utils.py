@@ -6,7 +6,7 @@ HERE = os.path.dirname(__file__)
 # allow importing `utils.py` in the same folder
 sys.path.insert(0, HERE)
 
-from utils import read_csv_to_dict
+from utils import read_csv_to_dict  # noqa: E402
 
 
 def test_read_list():
