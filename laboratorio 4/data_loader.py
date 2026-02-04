@@ -24,7 +24,7 @@ import os
 import json
 import csv
 import logging
-from typing import Any, Dict, Generator, Iterable, List, Optional, Tuple, Union
+from typing import Any, Dict, Generator, List, Optional, Tuple, Union
 import xml.etree.ElementTree as ET
 
 _logger = logging.getLogger(__name__)
@@ -95,7 +95,9 @@ def _read_json_stream_with_ijson(filepath: str) -> Generator[Any, None, None]:
     try:
         import ijson  # type: ignore
     except Exception:  # pragma: no cover - optional dependency
-        raise RuntimeError("Instale 'ijson' para parseo JSON en streaming (pip install ijson)")
+        raise RuntimeError(
+            "Instale 'ijson' para parseo JSON en streaming (pip install ijson)"
+        )
 
     with open(filepath, "rb") as f:
         for item in ijson.items(f, "item"):
@@ -115,7 +117,9 @@ def _read_csv_rows(filepath: str) -> Generator[Dict[str, Any], None, None]:
         raise ValueError(f"Error leyendo CSV: {e}")
 
 
-def _read_xml_stream(filepath: str, item_tag: Optional[str] = None) -> Generator[Dict[str, Any], None, None]:
+def _read_xml_stream(
+    filepath: str, item_tag: Optional[str] = None
+) -> Generator[Dict[str, Any], None, None]:
     """Parsea XML en streaming con `iterparse`.
 
     - Si `item_tag` se proporciona, yield para cada elemento con ese tag.
@@ -136,13 +140,19 @@ def _read_xml_stream(filepath: str, item_tag: Optional[str] = None) -> Generator
         if item_tag is None:
             # Si el element tiene elementos hijos, y su padre es root, lo tratamos como item
             if list(elem):
-                item = {child.tag: (child.text.strip() if child.text else None) for child in elem}
+                item = {
+                    child.tag: (child.text.strip() if child.text else None)
+                    for child in elem
+                }
                 item.update({f"@{k}": v for k, v in elem.attrib.items()})
                 yield item
                 elem.clear()
         else:
             if tag == item_tag:
-                item = {child.tag: (child.text.strip() if child.text else None) for child in elem}
+                item = {
+                    child.tag: (child.text.strip() if child.text else None)
+                    for child in elem
+                }
                 item.update({f"@{k}": v for k, v in elem.attrib.items()})
                 yield item
                 elem.clear()
@@ -186,7 +196,13 @@ def read_data(
     filesize = os.path.getsize(filepath)
     should_stream = stream or (filesize >= memory_threshold)
 
-    _logger.debug("read_data: %s (fmt=%s, size=%d, stream=%s)", filepath, fmt_candidate, filesize, should_stream)
+    _logger.debug(
+        "read_data: %s (fmt=%s, size=%d, stream=%s)",
+        filepath,
+        fmt_candidate,
+        filesize,
+        should_stream,
+    )
 
     # JSON handling
     if fmt_candidate == "json":
@@ -202,7 +218,11 @@ def read_data(
                 raise ValueError("Archivo JSON vacío")
 
         # NDJSON (one JSON object per line)
-        if first_line.startswith("{") or first_line.startswith("[") and "}\n" not in first_line:
+        if (
+            first_line.startswith("{")
+            or first_line.startswith("[")
+            and "}\n" not in first_line
+        ):
             # Could be NDJSON or regular JSON; prefer NDJSON if streaming
             if should_stream:
                 # Try NDJSON streaming
@@ -216,7 +236,9 @@ def read_data(
                 data_gen = _read_json_stream_with_ijson(filepath)
                 return {"format": "json", "data": data_gen}
             except RuntimeError as e:
-                _logger.warning("ijson no disponible: %s; cargando en memoria como fallback", e)
+                _logger.warning(
+                    "ijson no disponible: %s; cargando en memoria como fallback", e
+                )
 
         # Fallback: carga completa en memoria
         data = _read_json_full(filepath)
@@ -229,10 +251,14 @@ def read_data(
             elif isinstance(data, list):
                 for i, item in enumerate(data):
                     if not isinstance(item, dict):
-                        raise ValueError(f"Elemento en JSON en posición {i} no es un objeto")
+                        raise ValueError(
+                            f"Elemento en JSON en posición {i} no es un objeto"
+                        )
                     missing = [f for f in required_fields if f not in item]
                     if missing:
-                        raise ValueError(f"Campos faltantes en JSON (fila {i}): {missing}")
+                        raise ValueError(
+                            f"Campos faltantes en JSON (fila {i}): {missing}"
+                        )
 
         return {"format": "json", "data": data}
 
@@ -258,7 +284,9 @@ def read_data(
                     else:
                         key_name = index_col
                         if key_name not in reader.fieldnames:
-                            raise ValueError(f"index_col nombre no encontrado en encabezados: {key_name}")
+                            raise ValueError(
+                                f"index_col nombre no encontrado en encabezados: {key_name}"
+                            )
 
                 for row in _read_csv_rows(filepath):
                     if key_name not in row:
@@ -291,7 +319,9 @@ def read_data(
         else:
             key_name = index_col
             if key_name not in reader.fieldnames:
-                raise ValueError(f"index_col nombre no encontrado en encabezados: {key_name}")
+                raise ValueError(
+                    f"index_col nombre no encontrado en encabezados: {key_name}"
+                )
 
         result: Dict[str, Dict[str, Any]] = {}
         for i, row in enumerate(rows):
@@ -321,7 +351,10 @@ def read_data(
         items = []
         if xml_item_tag:
             for elem in root.findall(f".//{xml_item_tag}"):
-                item = {child.tag: (child.text.strip() if child.text else None) for child in elem}
+                item = {
+                    child.tag: (child.text.strip() if child.text else None)
+                    for child in elem
+                }
                 item.update({f"@{k}": v for k, v in elem.attrib.items()})
                 items.append(item)
         else:

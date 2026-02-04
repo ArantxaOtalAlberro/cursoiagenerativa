@@ -10,13 +10,18 @@ def greet_user(name: str) -> None:
 def read_csv_to_dict(
     path: str,
     key: Optional[str] = None,
-    delimiter: str = ',',
-    encoding: str = 'utf-8',
+    delimiter: str = ",",
+    encoding: str = "utf-8",
     allow_duplicates: bool = False,
     stream: bool = False,
     filter_column: Optional[str] = None,
     filter_value: Optional[str] = None,
-) -> Union[List[Dict[str, str]], Dict[str, Union[Dict[str, str], List[Dict[str, str]]]], Iterator[Dict[str, str]], Iterator[Tuple[str, Dict[str, str]]]]:
+) -> Union[
+    List[Dict[str, str]],
+    Dict[str, Union[Dict[str, str], List[Dict[str, str]]]],
+    Iterator[Dict[str, str]],
+    Iterator[Tuple[str, Dict[str, str]]],
+]:
     """Lee un CSV y devuelve filas como lista o diccionario indexado por columna.
 
     Mejoras respecto a la versión anterior:
@@ -54,13 +59,15 @@ def read_csv_to_dict(
     """
 
     def _iter_rows() -> Iterator[Dict[str, str]]:
-        f = open(path, encoding=encoding, newline='')
+        f = open(path, encoding=encoding, newline="")
         try:
             reader = csv.DictReader(f, delimiter=delimiter)
             if reader.fieldnames is None:
                 raise ValueError("CSV sin cabecera (fieldnames es None)")
             if filter_column is not None and filter_column not in reader.fieldnames:
-                raise KeyError(f"La columna de filtro '{filter_column}' no existe en el CSV")
+                raise KeyError(
+                    f"La columna de filtro '{filter_column}' no existe en el CSV"
+                )
             for row in reader:
                 if filter_column is None or row.get(filter_column) == filter_value:
                     yield row
@@ -68,7 +75,7 @@ def read_csv_to_dict(
             f.close()
 
     def _iter_keyed(kname: str) -> Iterator[Tuple[str, Dict[str, str]]]:
-        f = open(path, encoding=encoding, newline='')
+        f = open(path, encoding=encoding, newline="")
         try:
             reader = csv.DictReader(f, delimiter=delimiter)
             if reader.fieldnames is None:
@@ -76,7 +83,9 @@ def read_csv_to_dict(
             if kname not in reader.fieldnames:
                 raise KeyError(f"La columna '{kname}' no existe en el CSV")
             if filter_column is not None and filter_column not in reader.fieldnames:
-                raise KeyError(f"La columna de filtro '{filter_column}' no existe en el CSV")
+                raise KeyError(
+                    f"La columna de filtro '{filter_column}' no existe en el CSV"
+                )
             for row in reader:
                 if filter_column is None or row.get(filter_column) == filter_value:
                     yield (row[kname], row)
@@ -90,7 +99,9 @@ def read_csv_to_dict(
     try:
         # Validación de parámetros de filtrado
         if (filter_column is None) ^ (filter_value is None):
-            raise ValueError("`filter_column` y `filter_value` deben proporcionarse juntos")
+            raise ValueError(
+                "`filter_column` y `filter_value` deben proporcionarse juntos"
+            )
 
         if stream:
             if key is None:
@@ -99,7 +110,7 @@ def read_csv_to_dict(
                 return _iter_keyed(key)
 
         # No streaming: cargar en memoria
-        with open(path, encoding=encoding, newline='') as f:
+        with open(path, encoding=encoding, newline="") as f:
             reader = csv.DictReader(f, delimiter=delimiter)
             if reader.fieldnames is None:
                 raise ValueError("CSV sin cabecera (fieldnames es None)")

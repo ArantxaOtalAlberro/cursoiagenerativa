@@ -43,7 +43,9 @@ def main():
     print("data:", res_xml["data"])
 
     print("\nDemo: leyendo sample.xml en streaming (xml_item_tag='person')")
-    res_xml_stream = read_data(os.path.join(HERE, "sample.xml"), stream=True, xml_item_tag="person")
+    res_xml_stream = read_data(
+        os.path.join(HERE, "sample.xml"), stream=True, xml_item_tag="person"
+    )
     print("format:", res_xml_stream["format"])
     print("data (primeros elementos):", drain_and_print(res_xml_stream["data"]))
 
