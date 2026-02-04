@@ -1,0 +1,18 @@
+rules:
+  - id: avoid-eval
+    languages: [javascript]
+    message: "Evita usar eval(), puede ejecutar código arbitrario"
+    pattern: eval(...)
+    severity: ERROR
+
+  - id: avoid-print-password
+    languages: [python]
+    message: "Evita imprimir contraseñas"
+    pattern: print(password)
+    severity: ERROR
+
+  - id: avoid-console-password
+    languages: [javascript]
+    message: "Evita imprimir contraseñas en consola JS"
+    pattern: console.log(password)
+    severity: ERROR
